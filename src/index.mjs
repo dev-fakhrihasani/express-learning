@@ -80,6 +80,19 @@ app.patch('/api/users/:id', (req, res) => {
   return res.status(200).send('Data has been changed')
 });
 
+// DELETE method
+app.delete('/api/users/:id', (req, res) => {
+  const { params: { id } } = req;
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return res.sendStatus(400);
+  const findUserIndex = users.findIndex((user) => user.id === parsedId);
+  if (findUserIndex === -1) return res.sendStatus(404);
+
+  users.splice(findUserIndex, 1);
+  return res.status(200).send('Data has been deleted')
+});
+
+
 app.listen(PORT, () => {
   console.log(`Running on Port ${PORT}`);
 });
