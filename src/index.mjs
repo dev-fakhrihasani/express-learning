@@ -2,6 +2,9 @@ import express from "express";
 
 const app = express();
 
+// Set middleware in order to allow JSON
+app.use(express.json())
+
 const PORT = process.env.PORT || 4000;
 
 const users = [
@@ -41,6 +44,16 @@ app.get('/api/products', (req, res) => {
     price: 5000
   }])
 })
+
+// POST method
+app.post('/api/users', (req, res) => {
+  const { body } = req;
+  const newUser = { id: users[users.length - 1].id + 1, ...body };
+  // id: user[2].id = id: 3
+  // id: (user[2].id) + 1 = id: (3) + 1
+  users.push(newUser)
+  return res.status(201).send(newUser);
+});
 
 app.listen(PORT, () => {
   console.log(`Running on Port ${PORT}`);
