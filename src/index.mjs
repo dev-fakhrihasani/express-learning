@@ -1,4 +1,6 @@
 import express from "express";
+import { body, validationResult, matchedData, checkSchema } from "express-validator";
+import { createUserValidationSchema } from "./utils/validationSchema.mjs"
 
 const app = express();
 
@@ -67,9 +69,12 @@ app.get('/api/products', (req, res) => {
 })
 
 // POST method
-app.post('/api/users', (req, res) => {
-  const { body } = req;
-  const newUser = { id: users[users.length - 1].id + 1, ...body };
+app.post('/api/users', checkSchema(createUserValidationSchema), (req, res) => {
+  const result = validationResult(req);
+  console.log(result.errors.map(error => error.msg));
+  if (!result.isEmpty()) return res.status(400).send({ error: result.errors.map(error => error.msg) })
+  const data = matchedData(req)
+  const newUser = { id: users[users.length - 1].id + 1, ...data };
   // id: user[2].id = id: 3
   // id: (user[2].id) + 1 = id: (3) + 1
   users.push(newUser)
