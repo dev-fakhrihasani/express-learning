@@ -37,7 +37,7 @@ const users = [
 ];
 
 app.get('/', (req, res) => {
-  res.status(201).send({ message: 'Hi I am Sani!' });
+  res.status(200).send({ message: 'Hi I am Sani!' });
 });
 
 app.get('/api/users', (req, res) => {
@@ -46,7 +46,7 @@ app.get('/api/users', (req, res) => {
   if (filter && value) return res.send(
     users.filter((user) => user[filter].includes(value))
   );
-  return res.status(201).send(users);
+  return res.status(200).send(users);
 
 });
 
@@ -59,7 +59,7 @@ app.get('/api/users/:id', resolveIndexByUserId, (req, res) => {
 })
 
 app.get('/api/products', (req, res) => {
-  res.status(201).send([{
+  res.status(200).send([{
     id: 2,
     name: "Jamu",
     price: 5000
