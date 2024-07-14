@@ -5,6 +5,29 @@ const app = express();
 // Set middleware in order to allow JSON
 app.use(express.json())
 
+// Create middleware for resolve index by user id
+const resolveIndexByUserId = (req, res, next) => {
+  // Destructuring request object
+  const { params: { id } } = req
+
+  // Converts id from string to integer
+  const parsedId = parseInt(id);
+
+  // Check if the id is not number then will return bad request
+  if (isNaN(parsedId)) return res.sendStatus(400);
+
+  // Find user index that has an id that match with the parseId
+  const findUserIndex = users.findIndex((user) => user.id === parsedId);
+
+  // Check if there is no user id equal to parsedId
+  if (findUserIndex === -1) return res.sendStatus(404);
+
+  // Assign findUserIndex to request property called findUserIndex
+  req.findUserIndex = findUserIndex
+
+  next()
+};
+
 const PORT = process.env.PORT || 4000;
 
 const users = [
@@ -27,11 +50,9 @@ app.get('/api/users', (req, res) => {
 
 });
 
-app.get('/api/users/:id', (req, res) => {
-  const parsedId = parseInt(req.params.id)
-  if (isNaN(parsedId)) return res.status(400).send({ msg: "Bad Request. Invalid id" })
-
-  const findUser = users.find((user) => user.id === parsedId)
+app.get('/api/users/:id', resolveIndexByUserId, (req, res) => {
+  const { findUserIndex } = req;
+  const findUser = users[findUserIndex];
   if (!findUser) return res.sendStatus(404)
   return res.send(findUser)
 
@@ -55,39 +76,24 @@ app.post('/api/users', (req, res) => {
   return res.status(201).send(newUser);
 });
 
-//PUT method
-app.put('/api/users/:id', (req, res) => {
-  const { body, params: { id } } = req
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) return res.sendStatus(400);
-
-  const findUserIndex = users.findIndex((user) => user.id === parsedId);
-  if (findUserIndex === -1) return res.sendStatus(404);
-  users[findUserIndex] = { id: parsedId, ...body }
+// PUT method
+app.put('/api/users/:id', resolveIndexByUserId, (req, res) => {
+  const { body, findUserIndex } = req
+  users[findUserIndex] = { id: users[findUserIndex].id, ...body }
   return res.status(200).send('Data has been changed')
 
 });
 
-//PATCH method
-app.patch('/api/users/:id', (req, res) => {
-  const { body, params: { id } } = req
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) return res.sendStatus(400);
-
-  const findUserIndex = users.findIndex((user) => user.id === parsedId);
-  if (findUserIndex === -1) return res.sendStatus(404);
+// PATCH method
+app.patch('/api/users/:id', resolveIndexByUserId, (req, res) => {
+  const { body, findUserIndex } = req
   users[findUserIndex] = { ...users[findUserIndex], ...body }
   return res.status(200).send('Data has been changed')
 });
 
 // DELETE method
-app.delete('/api/users/:id', (req, res) => {
-  const { params: { id } } = req;
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) return res.sendStatus(400);
-  const findUserIndex = users.findIndex((user) => user.id === parsedId);
-  if (findUserIndex === -1) return res.sendStatus(404);
-
+app.delete('/api/users/:id', resolveIndexByUserId, (req, res) => {
+  const { findUserIndex } = req;
   users.splice(findUserIndex, 1);
   return res.status(200).send('Data has been deleted')
 });
