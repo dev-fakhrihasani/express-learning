@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { request, Router } from "express";
 import { users } from "../utils/constants.mjs";
 import { checkSchema, validationResult, matchedData } from "express-validator";
 import { createUserValidationSchema } from "../utils/validationSchema.mjs";
@@ -7,6 +7,14 @@ import { resolveIndexByUserId } from "../utils/middlewares.mjs";
 const router = Router();
 
 router.get('/api/users', (req, res) => {
+  console.log(req.session.id)
+  req.sessionStore.get(req.session.id, (err, sessionData) => {
+    if (err) {
+      console.log(err)
+      throw err
+    }
+    console.log(sessionData)
+  })
   console.log(req.query);
   const { query: { filter, value } } = req;
   if (filter && value) return res.send(
